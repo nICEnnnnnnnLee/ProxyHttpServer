@@ -1,0 +1,79 @@
+CONNECT www.baidu.com:443 HTTP/1.1
+Host: www.baidu.com:443
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0
+
+A SSLv3-compatible ClientHello handshake was found. Fiddler extracted the parameters below.
+
+Version: 3.3 (TLS/1.2)
+Random: 35 1A 82 B6 64 DF B5 B8 E7 5A 0C 17 E9 8F F2 FF 46 CF EE D3 3B 47 E0 33 45 30 62 BF 76 89 46 72
+"Time": 2067/1/11 21:55:01
+SessionID: 65 EF B5 E9 7D 16 60 06 87 0A 9C F4 CA AE 0F 64 46 A9 15 12 AC F9 84 F6 F2 E5 20 08 11 F9 D9 9D
+Extensions: 
+	0x8a8a		empty
+	renegotiation_info	00
+	server_name	www.baidu.com
+	extended_master_secret	empty
+	SessionTicket	CD 49 BA A5 F0 8C 2C FC 7F D9 89 0E 6C 30 37 1C 19 9C 9A 9F FA 20 63 12 50 F3 CC C0 48 79 EA 71 31 EB DE 31 4B 93 4C CA C6 20 C3 AF DD 98 17 6E 62 09 08 E3 EF 07 86 9D 8A 1C 96 70 47 83 61 B0 71 C6 93 2F 1D 13 29 BF 67 D7 C1 AE E6 EC 46 AB BB 4B 55 22 49 70 A5 A0 A2 C7 7E 81 39 CE 0D EE C7 CA 69 6B 6B 2D B7 E5 37 93 1E C5 3A 2E 02 0B B5 FA 10 34 DA 40 E1 CA E0 20 86 EC 34 98 7A C3 A5 15 73 FC 76 48 A1 DD 5B 04 4A 3D F5 C5 9A C1 39 A8 4A 33 E6 34 AF 98 CC BE 35 65 4E 9B 35 71
+	signature_algs	sha256_ecdsa, Unknown[0x8]_Unknown[0x4], sha256_rsa, sha384_ecdsa, Unknown[0x8]_Unknown[0x5], sha384_rsa, Unknown[0x8]_Unknown[0x6], sha512_rsa, sha1_rsa
+	status_request	OCSP - Implicit Responder
+	SignedCertTimestamp (RFC6962)	empty
+	ALPN		h2, http/1.1
+	channel_id(GoogleDraft)	empty
+	ec_point_formats	uncompressed [0x0]
+	elliptic_curves	unknown [0x1A1A), unknown [0x1D), secp256r1 [0x17], secp384r1 [0x18]
+	0xbaba		00
+	padding	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphers: 
+	[3A3A]	Unrecognized cipher - See http://www.iana.org/assignments/tls-parameters/
+	[C02B]	TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+	[C02F]	TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	[C02C]	TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+	[C030]	TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	[CCA9]	TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+	[CCA8]	TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+	[C013]	TLS1_CK_ECDHE_RSA_WITH_AES_128_CBC_SHA
+	[C014]	TLS1_CK_ECDHE_RSA_WITH_AES_256_CBC_SHA
+	[009C]	TLS_RSA_WITH_AES_128_GCM_SHA256
+	[009D]	TLS_RSA_WITH_AES_256_GCM_SHA384
+	[002F]	TLS_RSA_AES_128_SHA
+	[0035]	TLS_RSA_AES_256_SHA
+	[000A]	SSL_RSA_WITH_3DES_EDE_SHA
+
+Compression: 
+	[00]	NO_COMPRESSION
+
+--------------------------------------------------------------------------------------------------
+HTTP/1.1 200 Connection Established
+FiddlerGateway: Direct
+StartTime: 17:12:51.541
+Connection: close
+
+Encrypted HTTPS traffic flows through this CONNECT tunnel. HTTPS Decryption is enabled in Fiddler, so decrypted sessions running in this tunnel will be shown in the Web Sessions list.
+
+Secure Protocol: Tls12
+Cipher: Aes128 128bits
+Hash Algorithm: Sha256 ?bits
+Key Exchange: ECDHE_RSA (0xae06) 256bits
+
+== Server Certificate ==========
+[Subject]
+  CN=baidu.com, O="Beijing Baidu Netcom Science Technology Co., Ltd", OU=service operation department, L=beijing, S=beijing, C=CN
+
+[Issuer]
+  CN=GlobalSign Organization Validation CA - SHA256 - G2, O=GlobalSign nv-sa, C=BE
+
+[Serial Number]
+  21ED2CC2F1092C666B15E527
+
+[Not Before]
+  2018/4/3 11:26:03
+
+[Not After]
+  2019/5/26 13:31:02
+
+[Thumbprint]
+  D6AAF8CFA0E0236547FC2A894F895EC94724A60D
+
+[SubjectAltNames]
+baidu.com, baifubao.com, www.baidu.cn, www.baidu.com.cn, mct.y.nuomi.com, baifae.com, apollo.auto, *.baidu.com, *.baifubao.com, *.baidustatic.com, *.bdstatic.com, *.bdimg.com, *.hao123.com, *.nuomi.com, *.chuanke.com, *.trustgo.com, *.bce.baidu.com, *.eyun.baidu.com, *.map.baidu.com, *.mbd.baidu.com, *.fanyi.baidu.com, *.baidubce.com, *.mipcdn.com, *.news.baidu.com, *.baidupcs.com, *.aipage.com, *.aipage.cn, *.bcehost.com, *.safe.baidu.com, *.im.baidu.com, *.ssl2.duapps.com, *.baifae.com, *.baiducontent.com, *.dlnel.com, *.dlnel.org, *.dueros.baidu.com, *.su.baidu.com, *.91.com, *.hao123.baidu.com, *.apollo.auto, *.xueshu.baidu.com, *.bj.baidubce.com, *.gz.baidubce.com, click.hm.baidu.com, log.hm.baidu.com, cm.pos.baidu.com, wn.pos.baidu.com, update.pan.baidu.com
