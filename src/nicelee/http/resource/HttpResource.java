@@ -4,6 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
 public class HttpResource {
+	public final static int HTTP_REQUEST_FIRST = 0;
+	public final static int HTTP_REQUEST_AFTER_GET = 0x01;
+	public final static int HTTP_REQUEST_AFTER_CONNECT = 0x02;
+	public final static Pattern patternHeaders = Pattern.compile("^([^:]+):(.*)$");
 	public final static Pattern patternHost = Pattern.compile("^ *([0-9|a-z|A-Z|.]+) *: *([0-9]*) *$");
 	public final static Pattern patternFileRange = Pattern.compile("^bytes=([0-9]+)-([0-9]*)$");
 	public final static Pattern patternURL = Pattern.compile("^/([^?^#]*)#?[^#]*\\??[^?^#]*$");

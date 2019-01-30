@@ -1,7 +1,6 @@
 package nicelee.http.core.runnable;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -21,7 +20,7 @@ public class ProxyDealer implements Runnable {
 	BufferedOutputStream out;
 	// 与服务器之间的联系
 	StreamReader inFromSever;
-	BufferedWriter outToServer;
+	BufferedOutputStream outToServer;
 	// Socket监视器
 	 SocketMonitor monitor;
 
@@ -42,6 +41,7 @@ public class ProxyDealer implements Runnable {
 			
 			int len = inFromSever.read(inFromSever.readBuffer);
 			while (len > -1) {
+				//System.out.println("收到服务器包大小为:"+ len);
 				//放入监控队列, 等待timeout时间超时后关闭Socket, 此时会抛出异常, 进而结束整个线程
 				//Socket关闭后, 对应的两个Dealer线程均会抛出异常关闭
 				monitor.put(socketServer);

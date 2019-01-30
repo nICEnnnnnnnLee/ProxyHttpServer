@@ -26,7 +26,7 @@ public class HttpRequest {
 	public byte[] data = null;
 	
 	public void print() {
-		//System.out.println(method + " "+ url + " " + version);
+//		System.out.println(method + " "+ url + " " + version);
 //		for(Entry<String, String> entry : headers.entrySet()) {
 //			System.out.println("------>" +entry.getKey() + ": " + entry.getValue());
 //		}
