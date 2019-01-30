@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
 
 import nicelee.http.core.runnable.SocketMonitor;
 import nicelee.http.model.HttpRequest;
+import nicelee.http.resource.HttpResource;
 
 
 /**
@@ -144,32 +146,26 @@ public class StreamReader {
 		// 获取其他属性
 		String key_value = readLine();
 		while (key_value != null && key_value.length() > 0) {
-			// System.out.println(key_value);
+			//System.out.println(key_value);
 			// System.out.println("获取数据中...");
-			String[] objs = key_value.split(":");
-			objs[0] = objs[0].trim();
-			objs[1] = objs[1].trim();
-			
-			if (objs[0].toLowerCase().startsWith("host")) {
+			Matcher matcher = HttpResource.patternHeaders.matcher(key_value);
+			matcher.find();
+			String key = matcher.group(1).trim();
+			String value = matcher.group(2).trim();
+			if (key.toLowerCase().startsWith("host")) {
 				// 获取目的host
-				httpRequest.host = objs[1];
-			}else if (objs[0].toLowerCase().startsWith("content-length")) {
+				httpRequest.host = value;
+			}else if (key.toLowerCase().startsWith("content-length")) {
 				// 判断是否有数据
-				httpRequest.dataLength = Integer.parseInt(objs[1]);
+				httpRequest.dataLength = Integer.parseInt(value);
 			}else {
-				httpRequest.headers.put(objs[0], objs[1]);
+				httpRequest.headers.put(key, value);
 			}
 			key_value = readLine();
 			//System.out.println(Thread.currentThread().getName()+"当前key_value..." + key_value);
 			//System.out.println(Thread.currentThread().getName()+"当前key_value长度:" + key_value.getBytes().length);
 		}
 		//System.out.println(Thread.currentThread().getName()+"最后bytebuffer剩余数据..." + byteBuffer.position());
-		// 获取post数据
-		if (httpRequest.dataLength > 0) {
-			httpRequest.data = new byte[httpRequest.dataLength];
-			read(httpRequest.data, 0, httpRequest.dataLength);
-
-		}
 		// System.out.println("获取httpRequest完毕...");
 
 		// 内容传输不计入时间, 则从监控队列删除
@@ -180,16 +176,19 @@ public class StreamReader {
 	public int read(byte[] b, int off, int len) throws IOException, SocketException {
 
 		if (byteBuffer.position() == 0) {
+			//System.out.println("byteBuffer为空");
 			return in.read(b, off, len);
 		}
-
 		int pos = byteBuffer.position();
 		if (len > pos) {
+			//System.out.println("部分从byteBuffer中读取");
 			System.arraycopy(byteBuffer.array(), 0, b, off, pos);
 			int rSize = in.read(b, off + pos, len - pos);
+			//System.out.println("部分从流中读取");
 			byteBuffer.clear();
-			return rSize + pos + 1;
+			return rSize + pos;
 		} else {
+			//System.out.println("全部从byteBuffer中读取");
 			System.arraycopy(byteBuffer.array(), 0, b, off, len);
 			byteBuffer.position(0);
 			byteBuffer.put(byteBuffer.array(), len, pos - len);
@@ -198,7 +197,9 @@ public class StreamReader {
 	}
 	
 	public int read(byte[] b) throws IOException {
-		
+		if(b == readBuffer && byteBuffer.position() > 0) {
+			return read(b, 0, byteBuffer.position());
+		}
 		return read(b, 0, b.length);
 	}
 	
