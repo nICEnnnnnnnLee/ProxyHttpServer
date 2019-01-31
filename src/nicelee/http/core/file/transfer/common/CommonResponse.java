@@ -15,7 +15,7 @@ import nicelee.http.resource.HttpResource;
 import nicelee.http.util.StreamReader;
 
 public class CommonResponse {
-	
+
 	/**
 	 * 根据请求返回
 	 * 
@@ -23,8 +23,8 @@ public class CommonResponse {
 	 * @param reader
 	 * @param writer
 	 */
-	public static void doResponseCommon(File srcFolder, HttpRequest httpRequest, StreamReader in, BufferedOutputStream out)
-			throws IOException {
+	public static void doResponseCommon(File srcFolder, HttpRequest httpRequest, StreamReader in,
+			BufferedOutputStream out) throws IOException {
 		httpRequest.print();
 		HttpResponse httpResponse = new HttpResponse();
 		// 盘点是否禁止访问/未授权访问
@@ -73,6 +73,7 @@ public class CommonResponse {
 			CommonResponse.doResponseWithFileNotFound(httpResponse, out);
 		}
 	}
+
 	/**
 	 * 若返回true, 则httpRequest.url已经做了修改,且已经变成了绝对路径
 	 * 
@@ -84,7 +85,7 @@ public class CommonResponse {
 		// 去掉锚# 和参数? , 获取path
 		String path = httpRequest.url;
 		Matcher matcher = HttpResource.patternURL.matcher(path);
-		//System.out.println("path路径" +httpRequest.url);
+		// System.out.println("path路径" +httpRequest.url);
 		if (matcher.find()) {
 			path = matcher.group(1);
 		} else {
@@ -93,11 +94,7 @@ public class CommonResponse {
 		}
 
 		/**
-		 * 优先顺序,
-		 * 0文件存在 
-		 * 1不做任何修饰, 文件存在 
-		 * 2文件夹下, index.html/index.htm存在 
-		 * 3path加上.html后缀,文件存在
+		 * 优先顺序, 0文件存在 1不做任何修饰, 文件存在 2文件夹下, index.html/index.htm存在 3path加上.html后缀,文件存在
 		 */
 		File file = new File(srcFolder, path);
 		if (file.exists() && file.isDirectory()) {
@@ -121,6 +118,7 @@ public class CommonResponse {
 		}
 		return false;
 	}
+
 	/**
 	 * 若URL对应的文件不允许访问, 使用该方法返回
 	 * 
@@ -128,7 +126,8 @@ public class CommonResponse {
 	 * @param writer
 	 * @throws IOException
 	 */
-	public static void doResponseWithFileForbidden(HttpResponse httpResponse, BufferedOutputStream out) throws IOException {
+	public static void doResponseWithFileForbidden(HttpResponse httpResponse, BufferedOutputStream out)
+			throws IOException {
 		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
 
 		// 403
@@ -152,7 +151,8 @@ public class CommonResponse {
 	 * @param writer
 	 * @throws IOException
 	 */
-	public static void doResponseWithFileNotAuth(HttpResponse httpResponse, BufferedOutputStream out) throws IOException {
+	public static void doResponseWithFileNotAuth(HttpResponse httpResponse, BufferedOutputStream out)
+			throws IOException {
 		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
 
 		// 401
@@ -177,7 +177,8 @@ public class CommonResponse {
 	 * @param writer
 	 * @throws IOException
 	 */
-	public static void doResponseWithFileNotFound(HttpResponse httpResponse, BufferedOutputStream out) throws IOException {
+	public static void doResponseWithFileNotFound(HttpResponse httpResponse, BufferedOutputStream out)
+			throws IOException {
 		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
 
 		// 404
@@ -191,6 +192,29 @@ public class CommonResponse {
 		out.write(HttpResource.BREAK_LINE);
 		out.write(HttpResource.BREAK_LINE);
 		out.write(HttpResource.PAGE_404);
+		out.flush();
+	}
+
+	/**
+	 * 若URL对应的文件不存在, 使用该方法返回
+	 * 
+	 * @param httpResponse
+	 * @param writer
+	 * @throws IOException
+	 */
+	public static void doResponseWithFileNoChange(HttpResponse httpResponse, BufferedOutputStream out)
+			throws IOException {
+		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
+
+		// 304
+		httpResponse.do304();
+		httpResponse.dataLength = 0;
+		headerTrans.transferCommonHeader(httpResponse, out);
+
+		// out date-length & data
+		out.write("Content-Length: 0".getBytes());
+		out.write(HttpResource.BREAK_LINE);
+		out.write(HttpResource.BREAK_LINE);
 		out.flush();
 	}
 
@@ -211,6 +235,25 @@ public class CommonResponse {
 		// 200
 		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
 		httpResponse.do200();
+		//httpResponse.headers.put("Last-Modified", HttpResource.GMTDateFormat.format(fileFolder.lastModified()));
+		// 如果缓存了最新文件, 直接返回304
+		String cacheTime = httpRequest.headers.get("If-Modified-Since");
+		//System.out.println("headers 缓存时间: " + cacheTime);
+		if (cacheTime != null) {
+			try {
+				//System.out.println("对方本地浏览器缓存时间" + HttpResource.GMTDateFormat.parse(cacheTime).getTime() );
+				//System.out.println("服务器文件时间" + fileFolder.lastModified() );
+				if (HttpResource.GMTDateFormat.parse(cacheTime).getTime() + 1000 >= fileFolder.lastModified()) {
+					doResponseWithFileNoChange(httpResponse, out);
+					//System.out.println("对方本地浏览器已有缓存, 返回304");
+					return;
+				}
+				//System.out.println("对方本地浏览器已有缓存, 但已过时");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 		headerTrans.transferCommonHeader(httpResponse, out);
 
 		// out date-length & data
@@ -255,9 +298,11 @@ public class CommonResponse {
 				String fSize = String.valueOf(childFile.length());
 				sb.append("<a href=\"").append(httpRequest.url + childFile.getName()).append("\">")
 						.append(childFile.getName()).append("</a>")
-						.append(HttpResource.WHITE_SPACES, 0, HttpResource.WHITE_SPACES.length - childFile.getName().length())
+						.append(HttpResource.WHITE_SPACES, 0,
+								HttpResource.WHITE_SPACES.length - childFile.getName().length())
 						.append(HttpResource.aDateFormat.format(childFile.lastModified()))
-						.append(HttpResource.WHITE_SPACES, 0, HttpResource.WHITE_SPACES.length - fSize.length() - 30).append(fSize).append("<br>");
+						.append(HttpResource.WHITE_SPACES, 0, HttpResource.WHITE_SPACES.length - fSize.length() - 30)
+						.append(fSize).append("<br>");
 			}
 		}
 		sb.append("</pre><hr></body></html>");
@@ -287,6 +332,25 @@ public class CommonResponse {
 			BufferedOutputStream out) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 		httpResponse.do200();
 		httpResponse.dataLength = (int) file.length();
+		httpResponse.headers.put("Last-Modified", HttpResource.GMTDateFormat.format(file.lastModified()));
+		// 如果缓存了最新文件, 直接返回304
+				String cacheTime = httpRequest.headers.get("If-Modified-Since");
+				//System.out.println("headers 缓存时间: " + cacheTime);
+				if (cacheTime != null) {
+					try {
+						//System.out.println("对方本地浏览器缓存时间" + HttpResource.GMTDateFormat.parse(cacheTime).getTime() );
+						//System.out.println("服务器文件时间" + file.lastModified() );
+						if (HttpResource.GMTDateFormat.parse(cacheTime).getTime() + 1000 >= file.lastModified()) {
+							doResponseWithFileNoChange(httpResponse, out);
+							//System.out.println("对方本地浏览器已有缓存, 返回304");
+							return;
+						}
+						//System.out.println("对方本地浏览器已有缓存, 但已过时");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
 		HttpHeaderTransfer headerTrans = new HttpHeaderTransfer();
 
 		String fName = file.getName().toLowerCase();
@@ -308,7 +372,7 @@ public class CommonResponse {
 				} catch (Exception e) {
 				}
 				if (begin > 0) {
-					//System.out.println("206");
+					// System.out.println("206");
 					httpResponse.do206();
 				}
 				headerTrans.transferCommonHeader(httpResponse, out);

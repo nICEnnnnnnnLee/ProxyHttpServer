@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import nicelee.http.config.ConfigReader;
+import nicelee.config.ConfigReader;
+import nicelee.config.model.Config;
 import nicelee.http.core.SocketServer;
 
 public class MainApplication {
@@ -13,14 +14,10 @@ public class MainApplication {
 	public static void main(String[] args) throws IOException {
 		figlet();
 		// 1. 从配置文件app.config读取配置
-		ConfigReader.initConfigs();
-		int portServerListening = ConfigReader.getInt("nicelee.server.port");
-		int threadPoolSize = ConfigReader.getInt("nicelee.server.fixedPoolSize");
-		//String sourceLocation = ConfigReader.getString("nicelee.server.source");
-		long socketTimeout = ConfigReader.getLong("nicelee.server.socketTimeout");
+		Config configs = ConfigReader.initConfigs();
 
 		// 2. 启动服务端
-		SocketServer ss = new SocketServer(portServerListening, threadPoolSize, socketTimeout);
+		SocketServer ss = new SocketServer(configs);
 		ss.startServer();
 		
 	}

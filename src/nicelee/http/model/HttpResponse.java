@@ -6,11 +6,13 @@ public class HttpResponse {
 	public final static String HTTP_VERSION_1_1 = "HTTP/1.1";
 	public final static int HTTP_STATUS_200 = 200;
 	public final static int HTTP_STATUS_206 = 206;
+	public final static int HTTP_STATUS_304 = 304;
 	public final static int HTTP_STATUS_404 = 404;
 	public final static int HTTP_STATUS_403 = 403;
 	public final static int HTTP_STATUS_401 = 401;
 	public final static String HTTP_STATUS_Desc_200_OK = "OK";
 	public final static String HTTP_STATUS_Desc_206_Part = "Partial Content";
+	public final static String HTTP_STATUS_Desc_304_NOT_MODIFIED = "Not Modified";
 	public final static String HTTP_STATUS_Desc_401_NOT_AUTH = "Authorization Required";
 	public final static String HTTP_STATUS_Desc_404_NOT_FOUND = "Not Found";
 	public final static String HTTP_STATUS_Desc_403_FORBBIDEN = "Forbidden";
@@ -57,6 +59,11 @@ public class HttpResponse {
 	public HttpResponse do206() {
 		status = HTTP_STATUS_206;
 		statusDescript = HTTP_STATUS_Desc_206_Part;
+		return this;
+	}
+	public HttpResponse do304() {
+		status = HTTP_STATUS_304;
+		statusDescript = HTTP_STATUS_Desc_304_NOT_MODIFIED;
 		return this;
 	}
 	public HttpResponse do404() {

@@ -8,14 +8,16 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import nicelee.config.model.Config;
 import nicelee.http.core.runnable.SocketDealer;
 import nicelee.http.core.runnable.SocketMonitor;
 
 public class SocketServer {
 	
 	//Configs
+	int mode;
 	int portServerListening;
-	//String sourceLocation;
+	String sourceLocation;
 	long socketTimeout;
 	
 	boolean isRun = true;
@@ -23,12 +25,20 @@ public class SocketServer {
 	public static ExecutorService httpProxyThreadPool;
 	ServerSocket serverSocket;
 	
-	public SocketServer(int portServerListening, int threadPoolSize, long socketTimeout) {
+	public SocketServer(int portServerListening, int threadPoolSize, long socketTimeout, String sourceLocation) {
 		this.portServerListening = portServerListening;
 		httpThreadPool = Executors.newFixedThreadPool(threadPoolSize);
 		httpProxyThreadPool = Executors.newFixedThreadPool(threadPoolSize);
-		//this.sourceLocation = sourceLocation;
+		this.sourceLocation = sourceLocation;
 		this.socketTimeout = socketTimeout;
+	}
+	public SocketServer(Config config) {
+		this.portServerListening = config.portServerListening;
+		httpThreadPool = Executors.newFixedThreadPool(config.threadPoolSize);
+		httpProxyThreadPool = Executors.newFixedThreadPool(config.threadPoolSize);
+		this.sourceLocation = config.sourceLocation;
+		this.socketTimeout = config.socketTimeout;
+		this.mode = config.mode;
 	}
 	
 	/**
@@ -67,7 +77,7 @@ public class SocketServer {
 				}
 				
 				//System.out.println("收到新连接: " + socket.getInetAddress() + ":" + socket.getPort());
-				SocketDealer dealer = new SocketDealer(socket, monitor);
+				SocketDealer dealer = new SocketDealer(socket, monitor, sourceLocation, mode);
 				httpThreadPool.execute(dealer);
 				//monitor.put(socket); 改为在线程里面刷新时间(每次Http Request刷新一遍)
 			}

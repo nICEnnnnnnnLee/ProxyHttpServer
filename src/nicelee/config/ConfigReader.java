@@ -1,4 +1,4 @@
-package nicelee.http.config;
+package nicelee.config;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nicelee.config.model.Config;
 import nicelee.http.MainApplication;
 
 public class ConfigReader {
@@ -52,7 +53,7 @@ public class ConfigReader {
 		return System.getProperty(property);
 	}
 
-	public static void initConfigs() {
+	public static Config initConfigs() {
 		// 先初始化默认值
 		BufferedReader buReader = null;
 		try {
@@ -93,5 +94,12 @@ public class ConfigReader {
 			}
 		}
 		System.out.println("----Config ini end...----");
+		Config configs = new Config();
+		configs.portServerListening = ConfigReader.getInt("nicelee.server.port");
+		configs.threadPoolSize = ConfigReader.getInt("nicelee.server.fixedPoolSize");
+		configs.sourceLocation = ConfigReader.getString("nicelee.server.source");
+		configs.socketTimeout = ConfigReader.getLong("nicelee.server.socketTimeout");
+		configs.mode = ConfigReader.getInt("nicelee.server.mode");
+		return configs;
 	}
 }

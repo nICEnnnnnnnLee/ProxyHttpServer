@@ -2,6 +2,7 @@ package nicelee.http.core.runnable;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -9,7 +10,9 @@ import java.net.SocketException;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
+import nicelee.config.model.Config;
 import nicelee.http.core.SocketServer;
+import nicelee.http.core.file.transfer.common.CommonResponse;
 import nicelee.http.model.HttpRequest;
 import nicelee.http.resource.HttpResource;
 import nicelee.http.util.StreamReader;
@@ -28,7 +31,8 @@ public class SocketDealer implements Runnable {
 	// Socket监视器
 	SocketMonitor monitor;
 
-	// File srcFolder;
+	File srcFolder;
+	int mode;
 	int status = HttpResource.HTTP_REQUEST_FIRST;
 
 	public SocketDealer(Socket socketClient, SocketMonitor monitor) {
@@ -36,16 +40,15 @@ public class SocketDealer implements Runnable {
 		this.monitor = monitor;
 	}
 
-	public SocketDealer(Socket socketClient, SocketMonitor monitor, String source) {
+	public SocketDealer(Socket socketClient, SocketMonitor monitor, String source, int mode) {
 		this.socketClient = socketClient;
-		// this.srcFolder = new File(source);
+		this.srcFolder = new File(source);
 		this.monitor = monitor;
+		this.mode = mode;
 	}
 
 	@Override
 	public void run() {
-		// BufferedInputStream in = null;
-//		BufferedOutputStream out = null;
 		String url = "";
 		try {
 //			in = new BufferedInputStream(socketClient.getInputStream());
@@ -57,30 +60,38 @@ public class SocketDealer implements Runnable {
 			while ((httpRequest = in.readHttpRequestStructrue()) != null) {
 				url = httpRequest.url;
 				httpRequest.print();
-
-				if (httpRequest.method.toLowerCase().equals("connect")) {
-					// System.out.println("调用的是connect 方法");
-					doProxyConnect(httpRequest);
-					break;
-				} else {
-					// System.out.println("调用的是普通GET/POST 方法");
-					doProxyNormal(httpRequest);
+				
+				if(mode == Config.MODE_FILE_HTTP_SERVER) {
+					CommonResponse.doResponseCommon(srcFolder, httpRequest, in, out);
+					
+				}else {
+					if (httpRequest.method.toLowerCase().equals("connect")) {
+						// System.out.println("调用的是connect 方法");
+						doProxyConnect(httpRequest);
+						break;
+					} else {
+						// System.out.println("调用的是普通GET/POST 方法");
+						doProxyNormal(httpRequest);
+					}
+				}
+			}
+			
+			if(mode == Config.MODE_PROXY_HTTP_SERVER) {
+				
+				// 直接转发TCP包, 不做任何处理
+				// System.out.println("当前开始转发TCP包: ");
+				while (true) {
+					int length = in.read(in.readBuffer);
+					// System.out.println("当前收到客户端包大小: " + length);
+					outToServer.write(in.readBuffer, 0, length);
+					outToServer.flush();
 				}
 			}
 
-			// 直接转发TCP包, 不做任何处理
-			//System.out.println("当前开始转发TCP包: ");
-			while (true) {
-				int length = in.read(in.readBuffer);
-				// System.out.println("当前收到客户端包大小: " + length);
-				outToServer.write(in.readBuffer, 0, length);
-				outToServer.flush();
-			}
-
 		} catch (SocketException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} catch (IndexOutOfBoundsException e) {
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -144,8 +155,9 @@ public class SocketDealer implements Runnable {
 		outToServer.flush();
 		outToServer.write(String.format("Host: %s\r\n", httpRequest.host).getBytes());
 		for (Entry<String, String> entry : httpRequest.headers.entrySet()) {
-			//TODO do some filter or change
-			if(!entry.getKey().toLowerCase().contains("proxy") && !entry.getKey().toLowerCase().contains("forward") && !entry.getKey().toLowerCase().contains("authorization")) {
+			// TODO do some filter or change
+			if (!entry.getKey().toLowerCase().contains("proxy") && !entry.getKey().toLowerCase().contains("forward")
+					&& !entry.getKey().toLowerCase().contains("authorization")) {
 				outToServer.write((entry.getKey() + ": " + entry.getValue()).getBytes());
 				outToServer.write(HttpResource.BREAK_LINE);
 			}
@@ -179,8 +191,8 @@ public class SocketDealer implements Runnable {
 	private void connecToServer(HttpRequest httpRequest) throws IOException {
 		String dstIp = httpRequest.host;
 		int dstPort = 80;
-		//connect方法, 从首行url获取参数
-		if( httpRequest.method.toLowerCase().equals("connect") ) {
+		// connect方法, 从首行url获取参数
+		if (httpRequest.method.toLowerCase().equals("connect")) {
 			dstPort = 443;
 			dstIp = httpRequest.url;
 		}
@@ -189,7 +201,7 @@ public class SocketDealer implements Runnable {
 		if (matcher.find()) {
 			dstIp = matcher.group(1);
 			dstPort = Integer.parseInt(matcher.group(2));
-		} 
+		}
 		System.out.print("Host为:");
 		System.out.print(dstIp);
 		System.out.print(" ;ip为:");
