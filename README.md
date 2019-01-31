@@ -8,9 +8,11 @@
 
 | 属性  | 值 | 默认值 |
 | ------------- | ------------- |------------- |
+| nicelee.server.mode  | 运行模式:0 FileHttp/ 1 ProxyHttp | 1  |
 | nicelee.server.port  | 服务器监听端口  | 7777  |
 | nicelee.server.fixedPoolSize  |目前使用fixedThreadPool管理Socket处理线程，可以看作是最大TCP并发连接数  | 30  |
 | nicelee.server.socketTimeout  | 最大socket连接时长，单位ms(针对TCP端口被长连接长时间占用) | 120000  |
+| nicelee.server.source  | 目的文件目录 | .  |
 
 ## 简介
 * 运行   
@@ -36,7 +38,10 @@
 
 
 ## 更新日志
-* v1.1(当前版本)
+* v1.2(当前版本)
+    * 整合FileHttpServer/ProxyHttpServer
+    * 添加了对Headers头部中If-Modified-Since/Last-Modified的解析
+* v1.1
     * 支持Https代理
     * 修正了一个headers的解析问题, 该问题会导致不限于Referer标签值获取失败等问题
     * 修正了某些bug, 该bug会导致post访问时代理失败
